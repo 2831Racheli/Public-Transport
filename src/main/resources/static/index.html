@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAL-KAV | קל-קו - הדרך שלך הביתה</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Assistant', sans-serif; background-color: #f0f4f8; }
+        .navbar { background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%); color: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .sidebar { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .nav-pills .nav-link { color: #444; border-radius: 12px; margin-bottom: 10px; text-align: right; font-weight: 500; transition: 0.3s; }
+        .nav-pills .nav-link.active { background-color: #3b82f6 !important; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .main-card { background: white; border-radius: 20px; padding: 30px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); min-height: 500px; }
+        .btn-primary-kav { background: #3b82f6; border: none; border-radius: 10px; padding: 12px; font-weight: bold; }
+        .live-badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; animation: pulse 2s infinite; }
+        .result-item { border-right: 4px solid #3b82f6; background: #f8fafc; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-bus-alt fs-2 me-3"></i>
+            <span class="fs-3 fw-bold">KAL-KAV | קל-קו</span>
+        </div>
+        <div class="text-white-50 small">מערכת ניהול תחבורה חכמה v2.0</div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="sidebar">
+                <h5 class="fw-bold mb-4 text-secondary"><i class="fas fa-search me-2 text-primary"></i> לאן נוסעים היום?</h5>
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-live"><i class="fas fa-clock me-2"></i> זמן הגעה חי (Live)</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-route"><i class="fas fa-route me-2"></i> תכנון מסלול</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-info"><i class="fas fa-info-circle me-2"></i> מידע על קווים</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-schedule"><i class="fas fa-calendar-alt me-2"></i> לוחות זמנים</button>
+                    <hr>
+                    <button class="nav-link text-danger" data-bs-toggle="pill" data-bs-target="#tab-admin"><i class="fas fa-user-shield me-2"></i> פאנל מנהל</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content main-card">
+                
+                <div class="tab-pane fade show active" id="tab-live">
+                    <h2 class="fw-bold mb-4"><span class="live-badge me-2">LIVE</span> מתי האוטובוס בתחנה?</h2>
+                    <div class="row g-3">
+                        <div class="col-md-5"><label class="form-label">מספר קו</label><input type="text" id="liveLine" class="form-control" placeholder="למשל: 402"></div>
+                        <div class="col-md-5"><label class="form-label">קוד תחנה</label><input type="number" id="liveStation" class="form-control" placeholder="קוד תחנה (ID)"></div>
+                        <div class="col-md-2 d-flex align-items-end"><button onclick="getLiveArrival()" class="btn btn-primary-kav w-100 text-white">בדוק</button></div>
+                    </div>
+                    <div id="liveOutput" class="mt-5"></div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-route">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-map-marked-alt text-success me-3"></i> תכנון מסלול חכם</h2>
+                    <div class="row g-3">
+                        <div class="col-md-5"><label class="form-label">תחנת מוצא (ID)</label><input type="number" id="routeSrc" class="form-control"></div>
+                        <div class="col-md-5"><label class="form-label">תחנת יעד (ID)</label><input type="number" id="routeDst" class="form-control"></div>
+                        <div class="col-md-2 d-flex align-items-end"><button onclick="planRoute()" class="btn btn-primary-kav w-100 text-white">חפש</button></div>
+                    </div>
+                    <div id="routeOutput" class="mt-5"></div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-info">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-stream text-info me-3"></i> תחנות ומסלול הקו</h2>
+                    <div class="input-group mb-4">
+                        <input type="text" id="infoLine" class="form-control form-control-lg" placeholder="הכניסי מספר קו לצפייה במסלול...">
+                        <button onclick="getLineInfo()" class="btn btn-info text-white px-4">הצג תחנות</button>
+                    </div>
+                    <div id="infoOutput"></div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-schedule">
+                    <h2 class="fw-bold mb-4"><i class="fas fa-clock text-warning me-3"></i> לוחות זמנים מפורטים</h2>
+                    <div class="bg-light p-3 rounded mb-4">
+                        <div class="row g-2">
+                            <div class="col-md-4"><input type="text" id="schedLine" class="form-control" placeholder="מספר קו"></div>
+                            <div class="col-md-2"><input type="number" id="schedM" class="form-control" placeholder="חודש"></div>
+                            <div class="col-md-2"><input type="number" id="schedD" class="form-control" placeholder="יום"></div>
+                            <div class="col-md-2"><input type="number" id="schedH" class="form-control" placeholder="שעה"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button onclick="getDailySchedule()" class="btn btn-outline-dark"><i class="fas fa-calendar-day me-2"></i>לו"ז יומי</button>
+                        <button onclick="getHourlySchedule()" class="btn btn-outline-dark"><i class="fas fa-hourglass-start me-2"></i>נסיעות בשעה זו</button>
+                        <button onclick="getLastBus()" class="btn btn-outline-danger"><i class="fas fa-moon me-2"></i>נסיעה אחרונה</button>
+                        <button onclick="getBusLocations()" class="btn btn-outline-success"><i class="fas fa-bus-side me-2"></i>מיקומי אוטובוסים</button>
+                    </div>
+                    <div id="schedOutput" class="mt-4"></div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-admin">
+                    <h2 class="fw-bold mb-4 text-danger"><i class="fas fa-tools me-3"></i> פאנל מנהל מערכת</h2>
+                    <div class="card p-3 mb-4 border-danger">
+                        <h6>שיבוץ נסיעה חדשה</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4"><input type="number" id="admL" class="form-control" placeholder="ID קו"></div>
+                            <div class="col-md-4"><input type="number" id="admB" class="form-control" placeholder="ID אוטובוס"></div>
+                            <div class="col-md-4"><input type="number" id="admD" class="form-control" placeholder="ID נהג"></div>
+                            <div class="col-12"><input type="datetime-local" id="admT" class="form-control"></div>
+                            <button onclick="adminAddTravel()" class="btn btn-danger w-100 mt-2">שמור בלו"ז</button>
+                        </div>
+                    </div>
+                    <div id="adminOutput"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8085/api";
+    const AUTH = { 'Authorization': 'Basic ' + btoa('manager@bus.com:admin123'), 'Content-Type': 'application/json' };
+
+    // 1. Live
+    async function getLiveArrival() {
+        const line = document.getElementById('liveLine').value;
+        const station = document.getElementById('liveStation').value;
+        const res = await fetch(`${BASE_URL}/passenger/next-arrival-live?stationId=${station}&lineNumber=${line}`);
+        const text = await res.text();
+        document.getElementById('liveOutput').innerHTML = `<div class="alert alert-primary fs-5 fw-bold shadow-sm border-0"><i class="fas fa-satellite-dish me-3 text-primary"></i> ${text}</div>`;
+    }
+
+    // 2. Route
+    async function planRoute() {
+        const s = document.getElementById('routeSrc').value;
+        const d = document.getElementById('routeDst').value;
+        const res = await fetch(`${BASE_URL}/passenger/plan-route?sourceId=${s}&destId=${d}`);
+        const data = await res.json();
+        let html = data.length ? "<h5>קווים שנמצאו:</h5>" : "<div class='alert alert-warning'>לא נמצאו קווים ישירים.</div>";
+        data.forEach(item => html += `<div class="result-item shadow-sm"><i class="fas fa-check-circle text-success me-2"></i> ${item}</div>`);
+        document.getElementById('routeOutput').innerHTML = html;
+    }
+
+    // 3. Line Info (Fixed)
+    async function getLineInfo() {
+        const lineNum = document.getElementById('infoLine').value;
+        const res = await fetch(`${BASE_URL}/passenger/line-stations/${lineNum}`);
+        const data = await res.json();
+        let html = `<ul class="list-group shadow-sm">`;
+        data.forEach(station => html += `<li class="list-group-item p-3"><i class="fas fa-map-pin text-danger me-3"></i> ${station}</li>`);
+        document.getElementById('infoOutput').innerHTML = html + "</ul>";
+    }
+
+    // 4. Schedules
+    async function getDailySchedule() {
+        const line = document.getElementById('schedLine').value;
+        const m = document.getElementById('schedM').value;
+        const d = document.getElementById('schedD').value;
+        const res = await fetch(`${BASE_URL}/passenger/travels-day/${line}?m=${m}&d=${d}`);
+        const data = await res.json();
+        renderSched(data, "לוח זמנים יומי");
+    }
+
+    async function getHourlySchedule() {
+        const line = document.getElementById('schedLine').value;
+        const h = document.getElementById('schedH').value;
+        const res = await fetch(`${BASE_URL}/passenger/travels-hour/${line}/${h}`);
+        const data = await res.json();
+        renderSched(data, `נסיעות בשעה ${h}:00`);
+    }
+
+    async function getLastBus() {
+        const line = document.getElementById('schedLine').value;
+        const res = await fetch(`${BASE_URL}/passenger/travels-last/${line}`);
+        const text = await res.text();
+        document.getElementById('schedOutput').innerHTML = `<div class="alert alert-dark text-white"><i class="fas fa-moon me-2"></i> ${text}</div>`;
+    }
+
+    async function getBusLocations() {
+        const line = document.getElementById('schedLine').value;
+        const res = await fetch(`${BASE_URL}/passenger/line-travels/${line}`);
+        const data = await res.json();
+        renderSched(data, "מיקומי אוטובוסים מתוכננים");
+    }
+
+    function renderSched(list, title) {
+        let html = `<h6>${title}:</h6>`;
+        list.forEach(item => html += `<div class="result-item">${item}</div>`);
+        document.getElementById('schedOutput').innerHTML = html || "אין נסיעות להצגה.";
+    }
+
+    // 5. Admin Add
+    async function adminAddTravel() {
+        const body = {
+            line: { id: document.getElementById('admL').value },
+            bus: { id: document.getElementById('admB').value },
+            driver: { id: document.getElementById('admD').value },
+            departureTime: document.getElementById('admT').value
+        };
+        const res = await fetch(`${BASE_URL}/travels/add`, { method: 'POST', headers: AUTH, body: JSON.stringify(body) });
+        const out = document.getElementById('adminOutput');
+        if (res.ok) out.innerHTML = `<div class="text-success mt-2">הנסיעה נוספה בהצלחה!</div>`;
+        else { const err = await res.text(); out.innerHTML = `<div class="text-danger mt-2">${err}</div>`; }
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
